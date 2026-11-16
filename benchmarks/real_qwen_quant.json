@@ -1,0 +1,67 @@
+{
+  "model_name": "qwen3.5:4b",
+  "quantization_level": "Q4_K_M",
+  "physical_model_size_gb": 3.16,
+  "estimated_fp16_size_gb": 8.6,
+  "memory_footprint_reduction_x": 2.72,
+  "accuracy_count": 4,
+  "num_tasks": 6,
+  "accuracy_pct": 66.67,
+  "mean_decode_tokens_per_sec": 78.7,
+  "outcomes": [
+    {
+      "task_id": "QF-01-INT4-VRAM-BUDGET",
+      "topic": "4-Bit Weight + Group-Scale Storage",
+      "expected_value": 9,
+      "predicted_value": 9,
+      "exact_match": true,
+      "eval_tokens": 159,
+      "tokens_per_sec": 78.4
+    },
+    {
+      "task_id": "QF-02-KV-CACHE-GQA-RATIO",
+      "topic": "Grouped-Query Attention KV Compression",
+      "expected_value": 64,
+      "predicted_value": 25,
+      "exact_match": false,
+      "eval_tokens": 128,
+      "tokens_per_sec": 78.4
+    },
+    {
+      "task_id": "QF-03-ROOFLINE-RIDGE",
+      "topic": "Hardware Roofline Ridge Intensity",
+      "expected_value": 200,
+      "predicted_value": 24,
+      "exact_match": false,
+      "eval_tokens": 117,
+      "tokens_per_sec": 78.2
+    },
+    {
+      "task_id": "QF-04-FP8-E4M3-MAX",
+      "topic": "OCP FP8 Dynamic Range Spec",
+      "expected_value": 448,
+      "predicted_value": 448,
+      "exact_match": true,
+      "eval_tokens": 64,
+      "tokens_per_sec": 78.5
+    },
+    {
+      "task_id": "QF-05-TENSOR-PARALLEL-SHARD",
+      "topic": "8-Way Tensor Parallelism Memory",
+      "expected_value": 6,
+      "predicted_value": 6,
+      "exact_match": true,
+      "eval_tokens": 48,
+      "tokens_per_sec": 79.3
+    },
+    {
+      "task_id": "QF-06-HADAMARD-NORM",
+      "topic": "Orthonormal Walsh-Hadamard L2 Preservation",
+      "expected_value": 361,
+      "predicted_value": 361,
+      "exact_match": true,
+      "eval_tokens": 88,
+      "tokens_per_sec": 79.2
+    }
+  ]
+}

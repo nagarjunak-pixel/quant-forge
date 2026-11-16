@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use or reference quant-forge in research or enterprise architecture, please cite it as below."
+type: software
+title: "QuantForge: Sub-Byte LLM Compression, Second-Order Cholesky GPTQ/AWQ, SpinQuant Walsh-Hadamard & Native C++20 Bit-Packed INT4 Engine"
+version: 1.0.0
+date-released: "2026-11-16"
+license: Apache-2.0
+url: "https://nagarjunak-pixel.github.io/projects.html"
+repository-code: "https://github.com/nagarjunak-pixel/quant-forge"
+authors:
+  - family-names: "Kamireddy"
+    given-names: "Nagarjuna Reddy"
+    orcid: ""
+    affiliation: "Suryagentic AI"

@@ -1,10 +1,11 @@
 # QuantForge — Sub-Byte LLM Compression, Hessian GPTQ/AWQ, SpinQuant & Native C++20 INT4 Engine
 
 [![QuantForge Frontier CI](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml)
+[![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/quant-forge/releases/tag/v1.0.0)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-3776AB.svg)](https://www.python.org/)
 [![C++20 Packed INT4](https://img.shields.io/badge/C%2B%2B20--O3-2%20weights%2Fbyte-00599C.svg)](csrc/quant_kernels.cpp)
 [![PyTorch Cholesky](https://img.shields.io/badge/PyTorch-Cholesky%20H%E2%81%BB%C2%B9-EE4C2C.svg)](https://pytorch.org/)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-emerald.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-10b981.svg)](LICENSE)
 
 **QuantForge** is a clean-room, zero-mock reference implementation of modern **Sub-Byte Foundation Model Quantization, Incoherence Rotation, and Hardware Roofline Co-Design** (**ICLR 2023 `GPTQ`**, **MLSys 2024 Best Paper `AWQ`**, **Meta/ETH `SpinQuant` & `QuaRot` Walsh-Hadamard Transforms**, **OCP `FP8 E4M3/E5M2`**, and **Native `C++20` Bit-Packed `INT4` Fused GEMM**):
 
@@ -12,6 +13,12 @@
 2. **Second-Order Cholesky `GPTQ` (`act_order`) vs. Salient-Channel `AWQ` (`src/quant_forge/quantizers/gptq_awq.py`)**: Under emergent heavy-tailed Transformer activation outliers (`22x` channel spikes), `AWQ` grid-searches per-channel equivalence scaling ($\gamma^\star = 0.45$, **`4.54x` lower MSE**), while `GPTQ` computes the upper Cholesky factor of the inverse empirical Hessian $H^{-1} = R^\top R$ (`act_order=True`) to propagate Optimal Brain Surgeon updates across unquantized columns—cutting 4-bit output MSE by **`25.49x` (`21.22 dB -> 35.28 dB` SQNR, `+14.06 dB` gain)** over Naive `RTN`.
 3. **Orthonormal Walsh-Hadamard Incoherence (`SpinQuant` / `QuaRot`) & Hybrid OCP `FP8` (`E4M3` / `E5M2`)**: Applies an $O(d \log d)$ butterfly Fast Walsh-Hadamard Transform satisfying $(X H_d)(W H_d)^\top = X W^\top$ (`|Δ| = 6.87e-5`), crushing activation crest factor by **`7.49x` (`24.56 -> 3.28`)**, improving downstream `INT4` MSE by **`3.34x`**, and proving why hybrid `FP8` training uses `E5M2` (`26.26 dB` SQNR, `0.00%` overflow) instead of `E4M3` (`5.79 dB`, saturates at `448.0`) on heavy-tailed backward gradients.
 4. **Williams-Waterman-Patterson Hardware Roofline & Live `qwen3.5:4b` (`Q4_K_M`) Audit**: Models memory-bandwidth-bound `Decode` (**`3.55x` `INT4` speedup** on `H100 SXM5`) vs compute-bound `Prefill` (**`2.00x` `FP8` Tensor Core speedup**), paired with live Ollama hardware telemetry (`8.60 GB` FP16 -> `3.16 GB` `Q4_K_M` [`2.72x`], **`78.7 tok/s`** decode throughput).
+
+---
+
+## Live Interactive Quantization & Roofline Workbench
+
+![QuantForge Live Workbench — C++20 Packed INT4, Cholesky GPTQ/AWQ, SpinQuant FWHT & H100 Roofline](docs/assets/workbench-preview.png)
 
 ---
 

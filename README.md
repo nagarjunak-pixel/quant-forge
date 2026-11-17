@@ -1,6 +1,6 @@
 # QuantForge — Educational Reference Implementation of LLM Weight Quantization (GPTQ, AWQ, Hadamard Rotation, FP8, Packed INT4)
 
-[![QuantForge Frontier CI](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml)
+[![QuantForge CI](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml)
 [![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/quant-forge/releases/tag/v1.0.0)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-3776AB.svg)](https://www.python.org/)
 [![C++20 Packed INT4](https://img.shields.io/badge/C%2B%2B20--O3-2%20weights%2Fbyte-00599C.svg)](csrc/quant_kernels.cpp)
@@ -103,9 +103,9 @@ Apache License 2.0 — Copyright (c) 2026 Nagarjuna Kamireddy.
 
 ---
 
-## Author & Enterprise AI Architecture Hub
+## Author & Links
 Built by **[Nagarjuna Reddy Kamireddy](https://nagarjunak-pixel.github.io/)** (*Nagarjuna Kamireddy / Nagarjuna K*) — Lead AI Architect, GenAI & Agentic AI Lead, and Corporate AI Trainer (20+ years across Enterprise Data, SAP HANA & Production AI; AWS Certified Solutions Architect – Professional & NVIDIA-Certified Professional: Agentic AI).
 
-- **Official Portfolio & Architecture Hub:** [https://nagarjunak-pixel.github.io/](https://nagarjunak-pixel.github.io/)
-- **Enterprise Case Studies & Technical Articles:** [Case Studies](https://nagarjunak-pixel.github.io/case-studies.html) · [Architecture Articles](https://nagarjunak-pixel.github.io/articles.html) · [10-Mandate Role Fit](https://nagarjunak-pixel.github.io/roles.html)
+- **Portfolio:** [https://nagarjunak-pixel.github.io/](https://nagarjunak-pixel.github.io/)
+- **Case Studies & Technical Articles:** [Case Studies](https://nagarjunak-pixel.github.io/case-studies.html) · [Architecture Articles](https://nagarjunak-pixel.github.io/articles.html) · [10-Mandate Role Fit](https://nagarjunak-pixel.github.io/roles.html)
 - **Master CV & AI Search Index:** [Master CV](https://nagarjunak-pixel.github.io/resume.html) · [`llms-full.txt`](https://nagarjunak-pixel.github.io/llms-full.txt) · [LinkedIn](https://www.linkedin.com/in/nagarjuna-kamireddy)

@@ -1,4 +1,4 @@
-name: QuantForge Frontier CI
+name: QuantForge CI
 
 on:
   push:

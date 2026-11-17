@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "quant-forge"
 version = "1.0.0"
-description = "Frontier Sub-Byte LLM Quantization & Kernel Engine: Second-Order Hessian GPTQ, Salient-Channel AWQ, Walsh-Hadamard QuaRot/SpinQuant Incoherence, OCP FP8 E4M3/E5M2 & Native C++20 Packed INT4 Kernels"
+description = "LLM weight-quantization reference implementation — GPTQ, AWQ, Walsh-Hadamard rotation, simulated FP8, and a small C++20 packed-INT4 GEMM. Educational."
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.12"

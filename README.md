@@ -1,4 +1,4 @@
-# QuantForge — Sub-Byte LLM Compression, Hessian GPTQ/AWQ, SpinQuant & Native C++20 INT4 Engine
+# QuantForge — Educational Reference Implementation of LLM Weight Quantization (GPTQ, AWQ, Hadamard Rotation, FP8, Packed INT4)
 
 [![QuantForge Frontier CI](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml/badge.svg)](https://github.com/nagarjunak-pixel/quant-forge/actions/workflows/ci.yml)
 [![Release v1.0.0](https://img.shields.io/badge/release-v1.0.0-1f6feb.svg)](https://github.com/nagarjunak-pixel/quant-forge/releases/tag/v1.0.0)
@@ -7,12 +7,14 @@
 [![PyTorch Cholesky](https://img.shields.io/badge/PyTorch-Cholesky%20H%E2%81%BB%C2%B9-EE4C2C.svg)](https://pytorch.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-10b981.svg)](LICENSE)
 
-**QuantForge** is a clean-room, zero-mock reference implementation of modern **Sub-Byte Foundation Model Quantization, Incoherence Rotation, and Hardware Roofline Co-Design** (**ICLR 2023 `GPTQ`**, **MLSys 2024 Best Paper `AWQ`**, **Meta/ETH `SpinQuant` & `QuaRot` Walsh-Hadamard Transforms**, **OCP `FP8 E4M3/E5M2`**, and **Native `C++20` Bit-Packed `INT4` Fused GEMM**):
+**LLM weight-quantization reference implementation — GPTQ, AWQ, Walsh-Hadamard rotation, simulated FP8, and a small C++20 packed-INT4 GEMM. Educational.**
 
-1. **Physical `2-Weights/Byte` Native `C++20` `INT4` Fused Dequant-GEMM (`csrc/quant_kernels.cpp`)**: Physically packs pairs of asymmetric 4-bit weights into `uint8_t` bytes (`6.40x` actual byte compression at `G=64`: `524,288 B -> 81,920 B`) and executes algebraically fused register accumulation $\sum s_g(q_i - z_g)x_i = s_g(\sum q_i x_i - z_g \sum x_i)$ without ever materializing the `float32` weight matrix in memory (`max |Δ| = 7.2e-7` vs explicit dequantization).
-2. **Second-Order Cholesky `GPTQ` (`act_order`) vs. Salient-Channel `AWQ` (`src/quant_forge/quantizers/gptq_awq.py`)**: Under emergent heavy-tailed Transformer activation outliers (`22x` channel spikes), `AWQ` grid-searches per-channel equivalence scaling ($\gamma^\star = 0.45$, **`4.54x` lower MSE**), while `GPTQ` computes the upper Cholesky factor of the inverse empirical Hessian $H^{-1} = R^\top R$ (`act_order=True`) to propagate Optimal Brain Surgeon updates across unquantized columns—cutting 4-bit output MSE by **`25.49x` (`21.22 dB -> 35.28 dB` SQNR, `+14.06 dB` gain)** over Naive `RTN`.
-3. **Orthonormal Walsh-Hadamard Incoherence (`SpinQuant` / `QuaRot`) & Hybrid OCP `FP8` (`E4M3` / `E5M2`)**: Applies an $O(d \log d)$ butterfly Fast Walsh-Hadamard Transform satisfying $(X H_d)(W H_d)^\top = X W^\top$ (`|Δ| = 6.87e-5`), crushing activation crest factor by **`7.49x` (`24.56 -> 3.28`)**, improving downstream `INT4` MSE by **`3.34x`**, and proving why hybrid `FP8` training uses `E5M2` (`26.26 dB` SQNR, `0.00%` overflow) instead of `E4M3` (`5.79 dB`, saturates at `448.0`) on heavy-tailed backward gradients.
-4. **Williams-Waterman-Patterson Hardware Roofline & Live `qwen3.5:4b` (`Q4_K_M`) Audit**: Models memory-bandwidth-bound `Decode` (**`3.55x` `INT4` speedup** on `H100 SXM5`) vs compute-bound `Prefill` (**`2.00x` `FP8` Tensor Core speedup**), paired with live Ollama hardware telemetry (`8.60 GB` FP16 -> `3.16 GB` `Q4_K_M` [`2.72x`], **`78.7 tok/s`** decode throughput).
+**QuantForge** is a small, clean-room reimplementation of published post-training quantization techniques — GPTQ (Frantar et al.), AWQ (Lin et al.), Walsh-Hadamard incoherence rotation as used in QuaRot/SpinQuant, and OCP FP8 `E4M3`/`E5M2` rounding — written in PyTorch/NumPy, plus a ~115-line C++20 kernel for packed INT4 storage and dequant-fused matmul. All experiments run on small synthetic tensors on CPU; it is meant for studying the algorithms, not as a replacement for production toolkits such as AutoGPTQ, AutoAWQ, or llama.cpp.
+
+1. **Packed INT4 storage and fused dequant-GEMM in C++20 (`csrc/quant_kernels.cpp`)**: Packs pairs of asymmetric 4-bit weights into `uint8_t` bytes (`6.40x` byte reduction at `G=64` on a `256×512` matrix: `524,288 B -> 81,920 B`) and computes $\sum s_g(q_i - z_g)x_i = s_g(\sum q_i x_i - z_g \sum x_i)$ without materializing the `float32` weight matrix (`max |Δ| = 7.2e-7` vs explicit dequantization). Scalar C++ loops loaded via `ctypes`, with a NumPy fallback when no compiler is available.
+2. **GPTQ (`act_order`) vs. AWQ vs. RTN (`src/quant_forge/quantizers/gptq_awq.py`)**: On a synthetic `128×128` layer with injected `22x` activation-outlier channels, AWQ's per-channel scale grid search ($\gamma^\star = 0.45$) gives `4.54x` lower output MSE than round-to-nearest, and GPTQ's Cholesky-based error compensation ($H^{-1} = R^\top R$, `act_order=True`) gives `25.49x` lower MSE (`21.22 dB -> 35.28 dB` SQNR, `+14.06 dB`).
+3. **Walsh-Hadamard rotation and simulated FP8 (`E4M3` / `E5M2`)**: An $O(d \log d)$ fast Walsh-Hadamard transform satisfying $(X H_d)(W H_d)^\top = X W^\top$ (`|Δ| = 6.87e-5`) reduces the crest factor of a synthetic outlier-heavy activation matrix by `7.49x` (`24.56 -> 3.28`) and INT4 MSE by `3.34x`. A bit-level FP8 rounding simulator illustrates why `E5M2` (`26.26 dB` SQNR, `0.00%` overflow) suits heavy-tailed gradients better than `E4M3` (`5.79 dB`, saturates at `448.0`).
+4. **Analytical roofline model and a small Ollama check**: A Williams-Waterman-Patterson roofline calculation from published H100 SXM5 specs estimates `3.55x` INT4 speedup for memory-bound decode and `2.00x` FP8 speedup for compute-bound prefill (analytical estimates, not GPU measurements). A separate 6-question check against a local Ollama `qwen3.5:4b` (`Q4_K_M`, quantized by Ollama/llama.cpp, not by this repo) records `3.16 GB` vs an estimated `8.60 GB` FP16 (`2.72x`) and `78.7 tok/s` decode.
 
 ---
 
@@ -57,6 +59,14 @@ flowchart LR
 | **Walsh-Hadamard `SpinQuant` & OCP `FP8`** (`D=128`) | `uv run quant benchmark-hadamard` | **Crest `24.56 -> 3.28` (`7.49x`)** · **`3.34x` INT4 MSE gain** | Exact FWHT isometry `<Hu,Hv> == <u,v>`; `E5M2` `26.26 dB` vs `E4M3` `5.79 dB` |
 | **H100 SXM5 Hardware Roofline** (`Ridge = 295.22 F/B`) | `uv run quant roofline` | **Decode `INT4`: `3.55x`** · **Prefill `FP8`: `2.00x`** | Proves `W4A16` memory-bandwidth speedup vs `W8A8` compute-bound speedup |
 | **Live `qwen3.5:4b` (`Q4_K_M`) Hardware Audit** | `uv run quant eval-ollama --live-only` | **`3.16 GB` (`2.72x` vs FP16) · `78.7 tok/s` · `4/6` (`66.7%`)** | Saved in [`benchmarks/real_qwen_quant.json`](benchmarks/real_qwen_quant.json) |
+
+## Scope & Limitations
+
+- **Small codebase:** ~1.5k lines of Python (`src/quant_forge`, 1,481 lines including CLI, FastAPI app, and types) plus a ~115-line C++20 helper (`csrc/quant_kernels.cpp`). The C++ kernel is plain scalar loops (no SIMD/CUDA) loaded via `ctypes`.
+- **Synthetic, small benchmarks:** GPTQ/AWQ/RTN, Hadamard, and FP8 results come from seeded random tensors (e.g. a `128×128` layer, `D=128`) with hand-injected outlier channels — no real model checkpoints are quantized and no perplexity or downstream accuracy is measured.
+- **No GPU measurements:** everything runs on CPU. The H100/A100/M3 Max roofline speedups are analytical estimates from published peak FLOP/s and bandwidth figures, not measured kernels.
+- **Live LLM check is tiny and external:** the Ollama audit is 6 self-written numeric questions (`4/6` correct) against `qwen3.5:4b`, whose `Q4_K_M` quantization was produced by Ollama/llama.cpp rather than by QuantForge; its size and tok/s figures describe that model, not this code.
+- **Simplified vs. the original methods:** single-layer, single-pass versions of GPTQ/AWQ (no blocked lazy updates, no full-model calibration pipeline, no learned SpinQuant rotations; FP8 is simulated in `float32`). Not production-hardened.
 
 ---
 
